@@ -38,6 +38,8 @@ classdef ServiceQueue < handle
         % station begins serving a customer.  The resulting random number
         % is the time until service is complete.
         ServiceDist;
+        ServiceDistWithHelper;
+     
 
         % ServerAvailable - Row vector of boolean values, initial all true.
         % ServerAvailable(j) is set to false when serving station j begins
@@ -108,6 +110,9 @@ classdef ServiceQueue < handle
                 makedist("Exponential", mu=1/obj.ArrivalRate);
             obj.ServiceDist = ...
                 makedist("Exponential", mu=1/obj.DepartureRate);
+            obj.ServiceDistWithHelper = ...
+                makedist("Exponential", mu=1);
+            % modified to fit our values WITH HELPER
             obj.ServerAvailable = repelem(true, obj.NumServers);
             obj.Servers = cell([1, obj.NumServers]);
             obj.Events = PriorityQueue({}, @(x) x.Time);
@@ -241,7 +246,21 @@ classdef ServiceQueue < handle
 
             % Sample ServiceDist to get the time it will take to serve this
             % customer.
-            service_time = random(obj.ServiceDist);
+
+            %service_time = random(obj.ServiceDist);
+
+            NWaiting = length(obj.Waiting);
+            NInService = obj.NumServers - sum(obj.ServerAvailable);
+            NInSystem = NWaiting + NInService; 
+            
+            if NInSystem > 1
+                service_time = random(obj.ServiceDistWithHelper);
+                % with helper
+                % how do we update helper time? Can we use given mean from 1.5 to 1 -> subtract 0.5?
+            else
+                service_time = random(obj.ServiceDist); 
+                % without helper
+            end
 
             % Schedule a Departure event so that after the service time,
             % the customer at station j departs.
