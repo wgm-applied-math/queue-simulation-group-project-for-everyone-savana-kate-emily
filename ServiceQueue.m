@@ -13,6 +13,7 @@ classdef ServiceQueue < handle
         % them to be served is exponentially distributed with a rate
         % parameter of DepartureRate.
         DepartureRate = 1/1.5;
+        DepartureRateWithHelper = 1;
 
         % NumServers - How many identical serving stations are available.
         NumServers = 1;
@@ -111,7 +112,7 @@ classdef ServiceQueue < handle
             obj.ServiceDist = ...
                 makedist("Exponential", mu=1/obj.DepartureRate);
             obj.ServiceDistWithHelper = ...
-                makedist("Exponential", mu=1);
+                makedist("Exponential", mu=1/obj.DepartureRateWithHelper);
             % modified to fit our values WITH HELPER
             obj.ServerAvailable = repelem(true, obj.NumServers);
             obj.Servers = cell([1, obj.NumServers]);
@@ -256,7 +257,6 @@ classdef ServiceQueue < handle
             if NInSystem > 1
                 service_time = random(obj.ServiceDistWithHelper);
                 % with helper
-                % how do we update helper time? Can we use given mean from 1.5 to 1 -> subtract 0.5?
             else
                 service_time = random(obj.ServiceDist); 
                 % without helper
