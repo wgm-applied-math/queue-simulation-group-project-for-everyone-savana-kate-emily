@@ -19,7 +19,7 @@ NInSystemSamples = cell([1, n_samples]);
 % the log interval should be long enough for several arrival and departure
 % events happen.
 for sample_num = 1:n_samples
-    q = ServiceQueue(DepartureRate=1/1.5, LogInterval=10);
+    q = ServiceQueue(DepartureRate=1/1.5, DepartureRateWithHelper=1, LogInterval=10);
     % mu = 1/lambda = departure rate
     q.schedule_event(Arrival(1, Customer(1)));
     run_until(q, max_time);
@@ -62,16 +62,29 @@ hold on;
 % For comparison, plot the theoretical results for a M/M/1 queue.
 % The agreement isn't all that good unless you run for a long time, say
 % max_time = 10,000 units, and LogInterval is large, say 10.
-rho = q.ArrivalRate / q.DepartureRate;
-P0 = 1 - rho;
+rho1 = q.ArrivalRate / q.DepartureRate;
+rho2 = q.ArrivalRate / q.DepartureRateWithHelper;
+
+P0 = 1 - rho1;
 nMax = 10;
 ns = 0:nMax;
+wh = 0:nMax;
 P = zeros([1, nMax+1]);
+P2 = zeros([1, nMax+1]);
 P(1) = P0;
+P2(1) = P0;
+
+% red dots are WITHOUT helper
 for n = 1:nMax
-    P(1+n) = P0 * rho^n;
+    P(1+n) = P0 * rho1^n;
 end
 plot(ns, P, 'o', MarkerEdgeColor='k', MarkerFaceColor='r');
+
+% blue dots are WITH helper
+for n = 1:nMax
+        P2(1+n) = P0 * rho1 * rho2^(n-1);
+end
+plot(wh, P2, 'o', MarkerEdgeColor='k', MarkerFaceColor='b');
 
 % This sets some paper-related properties of the figure so that you can
 % save it as a PDF and it doesn't fill a whole page.
