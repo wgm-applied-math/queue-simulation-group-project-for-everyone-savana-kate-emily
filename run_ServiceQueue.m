@@ -11,6 +11,9 @@ max_time = 1000;
 
 % Record how many customers are in the system at the end of each sample.
 NInSystemSamples = cell([1, n_samples]);
+waitTimeSamples = cell([1, n_samples]);
+serviceTimeSamples = cell([1, n_samples]);
+totalTimeInSystemSamples = cell([1, n_samples]);
 
 %% Run the queue simulation
 
@@ -28,12 +31,35 @@ for sample_num = 1:n_samples
     % counts, because tables like q.Log allow easy extraction of whole
     % columns like this.
     NInSystemSamples{sample_num} = q.Log.NWaiting + q.Log.NInService;
+
+    waitTime = zeros([length(q.Served)]);
+    serviceTime = zeros([length(q.Served)]); 
+    totalTimeInSystem = zeros([length(q.Served)]);
+
+    for j = 1:length(q.Served)
+        waitTime = q.Served{j}.BeginServiceTime - q.Served{j}.ArrivalTime;
+    end
+    waitTimeSamples{sample_num} = waitTime;
+
+    for j = 1:length(q.Served)
+        serviceTime = q.Served{j}.DepartureTime - q.Served{j}.BeginServiceTime;
+    end
+    serviceTimeSamples{sample_num} = serviceTime;
+
+    for j = 1:length(q.Served)
+        totalTimeInSystem = q.Served{j}.DepartureTime - q.Served{j}.ArrivalTime;
+    end
+    totalTimeInSystemSamples{sample_num} = totalTimeInSystem;
+
 end
 
 % Join all the samples. "vertcat" is short for "vertical concatenate",
 % meaning it joins a bunch of arrays vertically, which in this case results
 % in one tall column.
 NInSystem = vertcat(NInSystemSamples{:});
+waitTimeSum = vertcat(waitTimeSamples{:});
+serviceTimeSum = vertcat(serviceTimeSamples{:});
+totalTimeInSystemSum = vertcat(totalTimeInSystemSamples{:});
 
 % MATLAB-ism: When you pull multiple items from a cell array, the result is
 % a "comma-separated list" rather than some kind of array.  Thus, the above
