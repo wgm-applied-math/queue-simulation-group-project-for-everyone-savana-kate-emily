@@ -56,10 +56,28 @@ end
 % Join all the samples. "vertcat" is short for "vertical concatenate",
 % meaning it joins a bunch of arrays vertically, which in this case results
 % in one tall column.
+
+% use these variable names to call on histogram
+
+% the probability of finding n customers in the system
 NInSystem = vertcat(NInSystemSamples{:});
+% the time customers spend waiting in the queue
 waitTimeSum = vertcat(waitTimeSamples{:});
+% the time customers spend being served
 serviceTimeSum = vertcat(serviceTimeSamples{:});
+% the total time customers spend in the system
 totalTimeInSystemSum = vertcat(totalTimeInSystemSamples{:});
+
+%% NInSystem
+fig = figure();
+t = tiledlayout(fig, 1,1);
+ax = nexttile(t);
+hold(ax, 'on');
+h = histogram(ax, NInSystem, Normalization="probability");
+title(ax, "Number of Customers in System");
+xlabel(ax, "Time in System (minutes)");
+ylabel(ax, "Probability");
+
 
 % MATLAB-ism: When you pull multiple items from a cell array, the result is
 % a "comma-separated list" rather than some kind of array.  Thus, the above
@@ -73,17 +91,50 @@ totalTimeInSystemSum = vertcat(totalTimeInSystemSamples{:});
 % This is roughly equivalent to "splatting" in Python, which looks like
 % f(*args).
 
+%% waitTimeSum
+fig = figure();
+t = tiledlayout(fig, 1,1);
+ax = nexttile(t);
+hold(ax, 'on');
+h = histogram(ax, waitTimeSum, Normalization="probability");
+title(ax, "Time Customers Spend Waiting");
+xlabel(ax, "Wait Time (minutes)");
+ylabel(ax, "Probability");
+
+%% serviceTimeSum
+fig = figure();
+t = tiledlayout(fig, 1,1);
+ax = nexttile(t);
+hold(ax, 'on');
+h = histogram(ax, serviceTimeSum, Normalization="probability");
+title(ax, "Time Customers Spend Being Served");
+xlabel(ax, "Service Time (minutes)");
+ylabel(ax, "Probability");
+
+%% totalTimeInSystemSum
+fig = figure();
+t = tiledlayout(fig, 1,1);
+ax = nexttile(t);
+hold(ax, 'on');
+h = histogram(ax, totalTimeInSystemSum, Normalization="probability");
+title(ax, "Total Time Customers Spend in System");
+xlabel(ax, "Time (minutes)");
+ylabel(ax, "Probability");
+
 %% Make a picture
 
 % Start with a histogram.  The result is an empirical PDF, that is, the
 % area of the bar at horizontal index n is proportional to the fraction of
 % samples for which there were n customers in the system.
-h = histogram(NInSystem, Normalization="probability", BinMethod="integers");
+fig = figure();
+t = tiledlayout(fig, 1, 1);
+ax = nexttile(t);
+h = histogram(ax, NInSystem, Normalization="probability", BinMethod="integers");
 
 % MATLAB-ism: Once you've created a picture, you can use "hold on" to cause
 % further plotting function to work with the same picture rather than
 % create a new one.
-hold on;
+hold(ax, "on");
 
 % For comparison, plot the theoretical results for a M/M/1 queue.
 % The agreement isn't all that good unless you run for a long time, say
@@ -105,20 +156,15 @@ P2(1) = P20;
 for n = 1:nMax
     P(1+n) = P0 * rho1^n;
 end
-plot(ns, P, 'o', MarkerEdgeColor='k', MarkerFaceColor='r');
+plot(ax, ns, P, 'o', MarkerEdgeColor='k', MarkerFaceColor='r');
 
 % blue dots are WITH helper
 for n = 1:nMax
         P2(1+n) = P20 * rho1 * rho2^(n-1);
 end
-plot(wh, P2, 'o', MarkerEdgeColor='k', MarkerFaceColor='b');
+plot(ax, wh, P2, 'o', MarkerEdgeColor='k', MarkerFaceColor='b');
 
-% This sets some paper-related properties of the figure so that you can
-% save it as a PDF and it doesn't fill a whole page.
-% gcf is "get current figure handle"
-% See https://stackoverflow.com/a/18868933/2407278
-fig = gcf;
-fig.Units = 'inches';
-screenposition = fig.Position;
-fig.PaperPosition = [0 0 screenposition(3:4)];
-fig.PaperSize = [screenposition(3:4)];
+exportgraphics(fig, "histogram file name goes here.pdf");
+title(ax, "Theoretical v.s. Actual Customers In System");
+xlabel(ax, "Number of Customers in System");
+ylabel(ax, "Probability");
