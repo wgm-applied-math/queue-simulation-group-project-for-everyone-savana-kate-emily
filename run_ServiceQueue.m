@@ -22,7 +22,7 @@ totalTimeInSystemSamples = cell([1, n_samples]);
 % the log interval should be long enough for several arrival and departure
 % events happen.
 for sample_num = 1:n_samples
-    q = ServiceQueue(DepartureRate=1/1.5, DepartureRateWithHelper=1, LogInterval=100);
+    q = ServiceQueue(DepartureRate=1, DepartureRateWithHelper=1, LogInterval=100);
     % mu = 1/lambda = departure rate
     q.schedule_event(Arrival(1, Customer(1)));
     run_until(q, max_time);
@@ -32,22 +32,22 @@ for sample_num = 1:n_samples
     % columns like this.
     NInSystemSamples{sample_num} = q.Log.NWaiting + q.Log.NInService;
 
-    waitTime = zeros([length(q.Served)]);
-    serviceTime = zeros([length(q.Served)]); 
-    totalTimeInSystem = zeros([length(q.Served)]);
+    waitTime = zeros([length(q.Served)], 1);
+    serviceTime = zeros([length(q.Served), 1]); 
+    totalTimeInSystem = zeros([length(q.Served), 1]);
 
     for j = 1:length(q.Served)
-        waitTime = q.Served{j}.BeginServiceTime - q.Served{j}.ArrivalTime;
+        waitTime(j) = q.Served{j}.BeginServiceTime - q.Served{j}.ArrivalTime;
     end
     waitTimeSamples{sample_num} = waitTime;
 
     for j = 1:length(q.Served)
-        serviceTime = q.Served{j}.DepartureTime - q.Served{j}.BeginServiceTime;
+        serviceTime(j) = q.Served{j}.DepartureTime - q.Served{j}.BeginServiceTime;
     end
     serviceTimeSamples{sample_num} = serviceTime;
 
     for j = 1:length(q.Served)
-        totalTimeInSystem = q.Served{j}.DepartureTime - q.Served{j}.ArrivalTime;
+        totalTimeInSystem(j) = q.Served{j}.DepartureTime - q.Served{j}.ArrivalTime;
     end
     totalTimeInSystemSamples{sample_num} = totalTimeInSystem;
 
