@@ -22,7 +22,7 @@ totalTimeInSystemSamples = cell([1, n_samples]);
 % the log interval should be long enough for several arrival and departure
 % events happen.
 for sample_num = 1:n_samples
-    q = ServiceQueue(DepartureRate=1/1.5, DepartureRateWithHelper=1/1.5, LogInterval=100);
+    q = ServiceQueue(DepartureRate=1/1.5, DepartureRateWithHelper=1, LogInterval=100);
     % mu = 1/lambda = departure rate
     q.schedule_event(Arrival(1, Customer(1)));
     run_until(q, max_time);
