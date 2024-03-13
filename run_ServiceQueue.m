@@ -32,12 +32,12 @@ for sample_num = 1:n_samples
     % columns like this.
     NInSystemSamples{sample_num} = q.Log.NWaiting + q.Log.NInService;
 
-    waitTime = zeros([length(q.Served)]);
+    waitTime = zeros([length(q.Served), 1]);
     serviceTime = zeros([length(q.Served)]); 
     totalTimeInSystem = zeros([length(q.Served)]);
 
     for j = 1:length(q.Served)
-        waitTime = q.Served{j}.BeginServiceTime - q.Served{j}.ArrivalTime;
+        waitTime(j) = q.Served{j}.BeginServiceTime - q.Served{j}.ArrivalTime;
     end
     waitTimeSamples{sample_num} = waitTime;
 
