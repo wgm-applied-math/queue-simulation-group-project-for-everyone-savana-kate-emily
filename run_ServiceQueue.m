@@ -22,7 +22,7 @@ totalTimeInSystemSamples = cell([1, n_samples]);
 % the log interval should be long enough for several arrival and departure
 % events happen.
 for sample_num = 1:n_samples
-    q = ServiceQueue(DepartureRate=1, DepartureRateWithHelper=1, LogInterval=100);
+    q = ServiceQueue(DepartureRate=1/1.5, DepartureRateWithHelper=1/1.5, LogInterval=100);
     % mu = 1/lambda = departure rate
     q.schedule_event(Arrival(1, Customer(1)));
     run_until(q, max_time);
@@ -73,11 +73,13 @@ fig = figure();
 t = tiledlayout(fig, 1,1);
 ax = nexttile(t);
 hold(ax, 'on');
-h = histogram(ax, NInSystem, Normalization="probability");
+h = histogram(ax, NInSystem, Normalization="probability", BinEdges=0:0.5:25);
 title(ax, "Number of Customers in System");
 xlabel(ax, "Time in System (minutes)");
 ylabel(ax, "Probability");
 
+ylim(ax, [0, 0.35]);
+xlim(ax, [0,15]);
 
 % MATLAB-ism: When you pull multiple items from a cell array, the result is
 % a "comma-separated list" rather than some kind of array.  Thus, the above
@@ -96,30 +98,39 @@ fig = figure();
 t = tiledlayout(fig, 1,1);
 ax = nexttile(t);
 hold(ax, 'on');
-h = histogram(ax, waitTimeSum, Normalization="probability");
+h = histogram(ax, waitTimeSum, Normalization="probability", BinEdges=0:0.5:25);
 title(ax, "Time Customers Spend Waiting");
 xlabel(ax, "Wait Time (minutes)");
 ylabel(ax, "Probability");
+
+ylim(ax, [0, 0.45]);
+xlim(ax, [0,20]);
 
 %% serviceTimeSum
 fig = figure();
 t = tiledlayout(fig, 1,1);
 ax = nexttile(t);
 hold(ax, 'on');
-h = histogram(ax, serviceTimeSum, Normalization="probability");
+h = histogram(ax, serviceTimeSum, Normalization="probability", BinEdges=0:0.5:25);
 title(ax, "Time Customers Spend Being Served");
 xlabel(ax, "Service Time (minutes)");
 ylabel(ax, "Probability");
+
+ylim(ax, [0, 0.35]);
+xlim(ax, [0,10]);
 
 %% totalTimeInSystemSum
 fig = figure();
 t = tiledlayout(fig, 1,1);
 ax = nexttile(t);
 hold(ax, 'on');
-h = histogram(ax, totalTimeInSystemSum, Normalization="probability");
+h = histogram(ax, totalTimeInSystemSum, Normalization="probability", BinEdges=0:0.5:25);
 title(ax, "Total Time Customers Spend in System");
 xlabel(ax, "Time (minutes)");
 ylabel(ax, "Probability");
+
+ylim(ax, [0, 0.12]);
+xlim(ax, [0,25]);
 
 %% Make a picture
 
